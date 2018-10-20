@@ -1,7 +1,5 @@
 /*eslint-env browser*/
 
-var FPS = 30;
-
 var width = 800;
 var height = 600;
 
@@ -12,9 +10,18 @@ c.style.border = '1px solid #d3d3d3';
 //c.addEventListener("click", onClick, false);
 document.body.appendChild(c);
 
+var jumpKey = false;
+var leftKey = false;
+var rightKey = false;
+
 var ctx = c.getContext("2d");
 
 var groundHeight = 500;
+
+function timestamp() {
+    "use strict";
+    return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+}
 
 function Point(x, y) {
     "use strict";
@@ -28,14 +35,38 @@ function Player(x, y) {
     this.color = "#FA5858";
     this.height = 30;
     this.width = 10;
-    this.speed = 5;
+    this.speed = 20;
+    this.jumpSpeed = 50;
+    this.velocity = new Point(0, 0);
+    this.isJumping = false;
     
-    this.moveLeft = function () {
-        this.pos.x -= this.speed;
+    this.jump = function () {
+        if (!this.isJumping) {
+            this.velocity.y = -this.jumpSpeed;
+            this.isJumping = true;
+        }
     };
     
-    this.moveRight = function () {
-        this.pos.x += this.speed;
+    this.update = function (dt) {
+        if (leftKey) {
+            this.pos.x -= this.speed * dt;
+        } else if (rightKey) {
+            this.pos.x += this.speed * dt;
+        }
+        if (jumpKey) {
+            this.jump();
+        }
+        this.pos.y += Math.min(groundHeight, this.velocity.y * dt);
+        
+        if (this.isJumping) {
+            this.velocity.y += 30 * dt;
+        }
+        
+        if (this.pos.y > groundHeight) {
+            this.velocity.y = 0;
+            this.pos.y = groundHeight;
+            this.isJumping = false;
+        }
     };
     
     this.show = function () {
@@ -46,8 +77,9 @@ function Player(x, y) {
 
 var player = new Player(20, groundHeight);
 
-function update() {
+function update(dt) {
     "use strict";
+    player.update(dt);
 }
 
 function draw() {
@@ -60,17 +92,40 @@ function draw() {
     player.show();
 }
 
-setInterval(function () {
+var now, dt, last = timestamp();
+
+//run the game loop
+function frame() {
     "use strict";
-    update();
+    now = timestamp();
+    dt = Math.min(1, (now - last) / 1000);   // duration capped at 1.0 seconds
+    update(dt);
     draw();
-}, 1000 / FPS);
+    last = now;
+    requestAnimationFrame(frame);
+}
+
+//start game
+requestAnimationFrame(frame);
 
 document.addEventListener('keydown', function (e) {
     "use strict";
     if (e.keyCode === 65) {   //A
-        player.moveLeft();
+        leftKey = true;
     } else if (e.keyCode === 68) {  //D
-        player.moveRight();
+        rightKey = true;
+    } else if (e.keyCode === 87) {   //W
+        jumpKey = true;
+    }
+});
+
+document.addEventListener('keyup', function (e) {
+    "use strict";
+    if (e.keyCode === 65) {   //A
+        leftKey = false;
+    } else if (e.keyCode === 68) {  //D
+        rightKey = false;
+    } else if (e.keyCode === 87) {   //W
+        jumpKey = false;
     }
 });
