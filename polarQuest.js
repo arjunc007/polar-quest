@@ -3,35 +3,34 @@
 
 window.onload = function() {
     "use strict";
-    var sources = {
-        resource0: "img/BG.png",
-        resource1: "img/32 x 32 platform character_idle_0.png",
-        resource2: "img/32 x 32 platform character_idle_1.png",
-        resource3: "img/32 x 32 platform character_idle_2.png",
-        resource4: "img/32 x 32 platform character_idle_3.png",
-        resource5: "img/32 x 32 platform character_jump_0.png",
-        resource6: "img/32 x 32 platform character_jump_1.png",
-        resource7: "img/run_right_0.png",
-        resource8: "img/run_right_1.png",
-        resource9: "img/run_right_2.png",
-        resource10: "img/run_right_3.png",
-        resource11: "img/run_right_4.png",
-        resource12: "img/run_right_5.png",
-        resource13: "img/run_left_0.png",
-        resource14: "img/run_left_1.png",
-        resource15: "img/run_left_2.png",
-        resource16: "img/run_left_3.png",
-        resource17: "img/run_left_4.png",
-        resource18: "img/run_left_5.png",
-        resource19: "img/jump_left_0.png",
-        resource20: "img/jump_left_1.png"
+    var sources = {       resource0: "img/BG.png",
+    resource1: "img/32 x 32 platform character_idle_0.png",
+    resource2: "img/32 x 32 platform character_idle_1.png",
+    resource3: "img/32 x 32 platform character_idle_2.png",
+    resource4: "img/32 x 32 platform character_idle_3.png",
+    resource5: "img/32 x 32 platform character_jump_0.png",
+    resource6: "img/32 x 32 platform character_jump_1.png",
+    resource7: "img/run_right_0.png",
+    resource8: "img/run_right_1.png",
+    resource9: "img/run_right_2.png",
+    resource10: "img/run_right_3.png",
+    resource11: "img/run_right_4.png",
+    resource12: "img/run_right_5.png",
+    resource13: "img/run_left_0.png",
+    resource14: "img/run_left_1.png",
+    resource15: "img/run_left_2.png",
+    resource16: "img/run_left_3.png",
+    resource17: "img/run_left_4.png",
+    resource18: "img/run_left_5.png",
+    resource19: "img/jump_left_0.png",
+    resource20: "img/jump_left_1.png"
     };
     loadImages(sources);
 };
 
 var loadComplete = false;
 
-var width = 900;
+var width = 800;
 var height = 600;
 
 var c = document.createElement('canvas');
@@ -112,7 +111,6 @@ function createPopup() {
 var pop = createPopup();
 document.body.appendChild(pop);
 hidePopup();
-
 var jumpKey = false;
 var leftKey = false;
 var rightKey = false;
@@ -156,7 +154,6 @@ Animation.prototype.animate = function () {
 Animation.prototype.getImage = function() {
     return this.images[this.currentFrame];
 }
-
 function Player(x, y) {
     "use strict";
     this.currentAnim;
@@ -243,6 +240,10 @@ function Player(x, y) {
         }
 
         //keep player above ground
+        if (this.isJumping) {
+            this.velocity.y += 30 * dt;
+        }
+        
         if (this.pos.y > groundHeight) {
             this.velocity.y = 0;
             this.pos.y = groundHeight;
@@ -285,7 +286,7 @@ var background = {
 };
 var now, dt, last = timestamp();
 
-var currentFood = totalFood, currentFuel = totalFuel, currentVehicle;
+var currentFood, currentFuel, currentVehicle;
 
 //main update loop
 function update(dt) {
@@ -298,7 +299,6 @@ function update(dt) {
     currentFood -= 10 * dt;
     
     if (currentFood < 0 || currentFuel < 0) {
-        //alert("You ran out of food!!!");
         console.log("Expedition failed");
     }
 }
@@ -309,10 +309,9 @@ function draw() {
     ctx.fillRect(0, 0, width, groundHeight);
     //Background
     background.show();    
-
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, groundHeight, width, height);
-
+    
     player.show();
 }
 
@@ -331,6 +330,7 @@ function frame() {
 function startgame() {
     "use strict";
     document.getElementById("div1").style.display = 'none'
+    document.getElementById("div2").style.display = 'none'
     document.getElementById("display").style.display = 'block';
 
     currentFood = document.getElementById("foodquantity").value;
@@ -351,8 +351,11 @@ function startgame() {
             player.speed = 100;
             break;
         }
+        start();
     
-    start();
+    //while (!loadComplete) {/*do nothing*/}
+    
+    requestAnimationFrame(frame);
 }
 
 function start() {
@@ -367,16 +370,16 @@ function start() {
 
 function startScreen() {
     "use strict";
-    var grd = ctx.createRadialGradient(75, 50, 5, 90, 60, 100);
-    grd.addColorStop(0, "red");
-    grd.addColorStop(1, "white");
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.font="20px sans-serif";
+    ctx.fillText("Choose your food and fuel to start",10,100); 
 
     // Fill with gradient
-    ctx.fillStyle = grd;
-    ctx.fillRect(10, 10, width, height);
     requestAnimationFrame(startScreen);
+    
 }
 
+startScreen();
 function loadImages(sources) {
     "use strict";
     var images = {};
@@ -437,61 +440,61 @@ document.addEventListener('keyup', function (e) {
         
     }
 
-function showPopup() {
-    "use strict";
-    c.style.visibility = 'hidden';
-    pop.style.visibility = 'visible';
-}
-
-function hidePopup() {
-    "use strict";
-    c.style.visibility = 'visible';
-    pop.style.visibility = 'hidden';
-}
-
-function setPopup(popContents) {
-    document.getElementById("PopTitle").textContent = popContents.title;
-    document.getElementById("PopImg").src =  popContents.image;
-    document.getElementById("PopBody").textContent = popContents.body;
-    document.getElementById("PopRadioLblA").textContent = popContents.radio.A;
-    document.getElementById("PopRadioLblB").textContent = popContents.radio.B;
+    function showPopup() {
+        "use strict";
+        c.style.visibility = 'hidden';
+        pop.style.visibility = 'visible';
+    }
     
-}
-
-var melt_ponds = {
-    "title":"Melt ponds",
-    "image":"img/melt_pools.jpg",
-    "body":"Melt ponds are pools of water which form on top of sea ice or glaciers. Scientists can" +
-           " use melt pond data as a tool to predict how much ice will melt at the height of summer. \r\n" +
-           "The presence of melt ponds complicates the dynamics of how ice shelves and glaciers melt. \r\n\r\n" +
-           "Sources: \r\n" +
-           "https://earthobservatory.nasa.gov/blogs/earthmatters/2014/08/01/more-melt-ponds/ \r\n" +
-           "https://visibleearth.nasa.gov/view.php?id=84113",
-    "radio":{"A":"Avoid melt pond", "B":"Try to cross"}
-};
-
-// Polar Bears
-var polar_bears = {
-    "title":"Polar bears",
-    "image":"img/Polar_Bear.jpg",
-    "body":"Polar bears live mainly within the Arctic Circle and rely on sea ice to hunt, breed and travel. " +
-           "The timing of sea ice melting in summer and freezing in winter affects polar bear populations because " +
-           "sea ice is so critical to their lifecycle. Satellite observations show that the arctic sea ice is melting " +
-           "sooner and freezing later each year, reducing the total number of ice-covered days each year.\r\n\r\n" +
-           "Sources: \r\n" +
-           "https://www.nasa.gov/feature/goddard/2016/polar-bears-across-the-arctic-face-shorter-sea-ice-season \r\n" +
-           "https://commons.wikimedia.org/wiki/File:Polar_Bear_-_Alaska_(cropped).jpg",
-    "radio":{"A":"Keep away from polar bears, avoid strong-smelling foods", "B":"Approach and offer food"}
-};
-
-// Sea_Ice
-var sea_ice = {
-    "title":"Arctic sea ice retreat",
-    "image":"img/Sea_Ice.png",
-    "body":"Each year in September, after the summer melting period, the extent of Arctic sea ice reaches its annual minimum." +
-           "Data from NASA and the National Snow & Ice Data Center shows how this minimum extent has been decreasing in recent " + 
-           "history contributing to rising sea levels.\r\n\r\n" +
-           "Sources: \r\n" +
-           "https://climate.nasa.gov/vital-signs/arctic-sea-ice/",
-    "radio":{"A":"Plan route considering change in sea ice extent", "B":"Ignore melting of sea ice"}
-};
+    function hidePopup() {
+        "use strict";
+        c.style.visibility = 'visible';
+        pop.style.visibility = 'hidden';
+    }
+    
+    function setPopup(popContents) {
+        document.getElementById("PopTitle").textContent = popContents.title;
+        document.getElementById("PopImg").src =  popContents.image;
+        document.getElementById("PopBody").textContent = popContents.body;
+        document.getElementById("PopRadioLblA").textContent = popContents.radio.A;
+        document.getElementById("PopRadioLblB").textContent = popContents.radio.B;
+        
+    }
+    
+    var melt_ponds = {
+        "title":"Melt ponds",
+        "image":"img/melt_pools.jpg",
+        "body":"Melt ponds are pools of water which form on top of sea ice or glaciers. Scientists can" +
+               " use melt pond data as a tool to predict how much ice will melt at the height of summer. \r\n" +
+               "The presence of melt ponds complicates the dynamics of how ice shelves and glaciers melt. \r\n\r\n" +
+               "Sources: \r\n" +
+               "https://earthobservatory.nasa.gov/blogs/earthmatters/2014/08/01/more-melt-ponds/ \r\n" +
+               "https://visibleearth.nasa.gov/view.php?id=84113",
+        "radio":{"A":"Avoid melt pond", "B":"Try to cross"}
+    };
+    
+    // Polar Bears
+    var polar_bears = {
+        "title":"Polar bears",
+        "image":"img/Polar_Bear.jpg",
+        "body":"Polar bears live mainly within the Arctic Circle and rely on sea ice to hunt, breed and travel. " +
+               "The timing of sea ice melting in summer and freezing in winter affects polar bear populations because " +
+               "sea ice is so critical to their lifecycle. Satellite observations show that the arctic sea ice is melting " +
+               "sooner and freezing later each year, reducing the total number of ice-covered days each year.\r\n\r\n" +
+               "Sources: \r\n" +
+               "https://www.nasa.gov/feature/goddard/2016/polar-bears-across-the-arctic-face-shorter-sea-ice-season \r\n" +
+               "https://commons.wikimedia.org/wiki/File:Polar_Bear_-_Alaska_(cropped).jpg",
+        "radio":{"A":"Keep away from polar bears, avoid strong-smelling foods", "B":"Approach and offer food"}
+    };
+    
+    // Sea_Ice
+    var sea_ice = {
+        "title":"Arctic sea ice retreat",
+        "image":"img/Sea_Ice.png",
+        "body":"Each year in September, after the summer melting period, the extent of Arctic sea ice reaches its annual minimum." +
+               "Data from NASA and the National Snow & Ice Data Center shows how this minimum extent has been decreasing in recent " + 
+               "history contributing to rising sea levels.\r\n\r\n" +
+               "Sources: \r\n" +
+               "https://climate.nasa.gov/vital-signs/arctic-sea-ice/",
+        "radio":{"A":"Plan route considering change in sea ice extent", "B":"Ignore melting of sea ice"}
+    };
