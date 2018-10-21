@@ -83,6 +83,7 @@ function createPopup() {
     inB.id="PopRadioB";
     inA.value = 'A';
     inB.value = 'B';
+    inA.checked = true;
    
     var lblA = document.createElement('label');
     var lblB = document.createElement('label');    
@@ -102,10 +103,49 @@ function createPopup() {
     var close = document.createElement('span');
     close.id = 'PopClose'
     close.textContent = 'Close';
-    close.onclick = hidePopup;
+    close.onclick = closePopup;
+    pop.appendChild(document.createElement('br'));
     pop.appendChild(close);    
     
     return pop;
+}
+
+function closePopup()
+{
+
+   switch(document.getElementById('PopTitle').textContent) {
+       case "Polar bears":
+            ans2 = true;
+            if(document.getElementById("PopRadioA").checked) {
+                currentFuel -= 10;
+            } else {
+                currentFuel -= 100;
+                currentFood -= 300;
+            }
+            break;
+       case "Arctic sea ice retreat":
+            ans1 = true;
+            if(document.getElementById("PopRadioA").checked) {
+                currentFuel -= 90;
+                currentFood -= 50;
+            } else {
+                currentFuel = 0;
+                currentFood = 0;
+            }
+            break;
+        case "Melt ponds":
+            ans3 = true;
+           if(document.getElementById("PopRadioA").checked) {
+                currentFuel -= 60;
+                currentFood -= 20;
+            } else {
+                currentFood -= 70;
+            }
+            break;
+        default: console.log("Invalid Option");
+            break;
+   }
+    hidePopup();
 }
 
 var pop = createPopup();
@@ -154,6 +194,9 @@ Animation.prototype.animate = function () {
 Animation.prototype.getImage = function() {
     return this.images[this.currentFrame];
 }
+
+var dist = 0;
+
 function Player(x, y) {
     "use strict";
     this.currentAnim;
@@ -287,16 +330,33 @@ var background = {
 var now, dt, last = timestamp();
 
 var currentFood, currentFuel, currentVehicle;
+var ans1 = false, ans2 = false, ans3 = false;
 
 //main update loop
 function update(dt) {
     "use strict";
+
+    dist = player.pos.x - background.posX;
+    //Game popup logic
+    if (dist > 700 && !ans3) {
+        setPopup(melt_ponds);
+        showPopup();
+    } else if(dist > 550 && !ans2) {
+        setPopup(polar_bears);
+        showPopup();
+    } else if(dist > 400 && !ans1)
+    {
+        setPopup(sea_ice);
+        showPopup();
+    }
+
     player.update(dt);
     background.update(dt);
     if (currentVehicle === "Truck") {
         currentFuel -= 20 * dt;
     }
     currentFood -= 10 * dt;
+    currentFuel -= 10 * dt;
     
     if (currentFood < 0 || currentFuel < 0) {
         console.log("Expedition failed");
