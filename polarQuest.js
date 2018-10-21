@@ -37,7 +37,50 @@ var c = document.createElement('canvas');
 c.width = width;
 c.height = height;
 c.style.border = '1px solid #d3d3d3';
+c.style.position = 'absolute';
 document.body.appendChild(c);
+
+function createPopup() {
+    "use strict";
+    var pop = document.createElement('div');
+    pop.width = width;
+    pop.height = height;
+    pop.style.border = '1px solid #d3d3d3';
+    pop.style.position = 'absolute';
+    
+    //Title
+    var title = document.createElement('h3');
+    title.id = 'PopTitle';
+    title.textContent = 'Title';
+    pop.appendChild(title);
+    
+    //Image
+    var img = document.createElement('img');
+    img.id = 'PopImg';
+    img.src = 'img/test.jpg';
+    img.height = height/3;
+    img.width = width/3;
+    pop.appendChild(img);    
+    
+    //Body
+    var body = document.createElement('div');
+    body.id = 'PopBody';
+    body.textContent = 'Body';
+    pop.appendChild(body);
+    
+    //Close 
+    var close = document.createElement('span');
+    close.id = 'PopClose'
+    close.textContent = 'Close';
+    close.onclick = hidePopup;
+    pop.appendChild(close);    
+    
+    return pop;
+}
+
+var pop = createPopup();
+document.body.appendChild(pop);
+hidePopup();
 
 var jumpKey = false;
 var leftKey = false;
@@ -329,3 +372,22 @@ document.addEventListener('keyup', function (e) {
         return 1.1*Speed;
         
     }
+
+function showPopup() {
+    "use strict";
+    c.style.visibility = 'hidden';
+    pop.style.visibility = 'visible';
+}
+
+function hidePopup() {
+    "use strict";
+    c.style.visibility = 'visible';
+    pop.style.visibility = 'hidden';
+}
+
+function setPopup(popContents) {
+    document.getElementById("popTitle").textContent = popContents.title;
+    document.getElementById("PopImg").src = popContents.image;
+    document.getElementById("PopBody").textContent = popContents.body;
+    
+}
