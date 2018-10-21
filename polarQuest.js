@@ -21,7 +21,9 @@ window.onload = function() {
         resource15: "img/run_left_2.png",
         resource16: "img/run_left_3.png",
         resource17: "img/run_left_4.png",
-        resource18: "img/run_left_5.png"
+        resource18: "img/run_left_5.png",
+        resource19: "img/jump_left_0.png",
+        resource20: "img/jump_left_1.png"
     };
     loadImages(sources);
 };
@@ -114,7 +116,11 @@ function Player(x, y) {
     this.update = function (dt) {
 
         if(this.isJumping) {
-            this.currentAnim = this.animations["jump"];
+            if(this.velocity.x > 0) {
+                this.currentAnim = this.animations["jumpRight"];
+            } else {
+                this.currentAnim = this.animations["jumpLeft"];
+            }
         } else if (this.velocity.x < 0) {
             this.currentAnim = this.animations["runLeft"];
         } else if (this.velocity.x > x){
@@ -280,7 +286,9 @@ function loadImages(sources) {
                 var idleImages = [images.resource1, images.resource2, images.resource3, images.resource4];
                 player.animations["idle"] = new Animation(idleImages);
                 var jumpImages = [images.resource5, images.resource6];
-                player.animations["jump"] = new Animation(jumpImages);
+                player.animations["jumpRight"] = new Animation(jumpImages);
+                var jumpImages = [images.resource19, images.resource20];
+                player.animations["jumpLeft"] = new Animation(jumpImages);
                 var runImages = [images.resource7, images.resource8, images.resource9, images.resource10, images.resource11, images.resource12];
                 player.animations["runRight"] = new Animation(runImages);
                 var runImages = [images.resource13, images.resource14, images.resource15, images.resource16, images.resource17, images.resource18];
