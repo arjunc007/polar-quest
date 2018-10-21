@@ -38,7 +38,80 @@ var c = document.createElement('canvas');
 c.width = width;
 c.height = height;
 c.style.border = '1px solid #d3d3d3';
+c.style.position = 'absolute';
 document.body.appendChild(c);
+
+function createPopup() {
+    "use strict";
+    var pop = document.createElement('div');
+    pop.width = width;
+    pop.height = height;
+    pop.style.border = '1px solid #d3d3d3';
+    pop.style.position = 'absolute';
+    
+    //Title
+    var title = document.createElement('h3');
+    title.id = 'PopTitle';
+    title.textContent = 'Title';
+    pop.appendChild(title);
+    
+    //Image
+    var img = document.createElement('img');
+    img.id = 'PopImg';
+    img.src = '';
+    img.height = height/3;
+    img.width = width/3;
+    pop.appendChild(img);    
+    
+    //Body
+    var body = document.createElement('div');
+    body.setAttribute('style', 'white-space: pre-line;'); // needed for line breaks
+    body.id = 'PopBody';
+    body.textContent = 'Body';
+    pop.appendChild(body);
+    
+    //Form
+    var form = document.createElement('form');
+    pop.appendChild(form);
+    // <input type="radio" name="group1" id="r1" value="1" /><label for="r1"> button one</label>
+    var inA = document.createElement('input');
+    var inB = document.createElement('input');
+    inA.type ="radio";
+    inB.type="radio";
+    inA.name="PopRadio";
+    inB.name="PopRadio";    
+    inA.id="PopRadioA";
+    inB.id="PopRadioB";
+    inA.value = 'A';
+    inB.value = 'B';
+   
+    var lblA = document.createElement('label');
+    var lblB = document.createElement('label');    
+    lblA.for = 'PopRadioA';
+    lblB.for = 'PopRadioB';
+    lblA.id = 'PopRadioLblA';
+    lblB.id = 'PopRadioLblB';    
+    
+    form.appendChild(document.createElement('br'));
+    form.appendChild(inA);
+    form.appendChild(lblA);
+    form.appendChild(document.createElement('br'));
+    form.appendChild(inB);
+    form.appendChild(lblB);
+    
+    //Close 
+    var close = document.createElement('span');
+    close.id = 'PopClose'
+    close.textContent = 'Close';
+    close.onclick = hidePopup;
+    pop.appendChild(close);    
+    
+    return pop;
+}
+
+var pop = createPopup();
+document.body.appendChild(pop);
+hidePopup();
 
 var jumpKey = false;
 var leftKey = false;
@@ -363,3 +436,62 @@ document.addEventListener('keyup', function (e) {
         return 1.1*Speed;
         
     }
+
+function showPopup() {
+    "use strict";
+    c.style.visibility = 'hidden';
+    pop.style.visibility = 'visible';
+}
+
+function hidePopup() {
+    "use strict";
+    c.style.visibility = 'visible';
+    pop.style.visibility = 'hidden';
+}
+
+function setPopup(popContents) {
+    document.getElementById("PopTitle").textContent = popContents.title;
+    document.getElementById("PopImg").src =  popContents.image;
+    document.getElementById("PopBody").textContent = popContents.body;
+    document.getElementById("PopRadioLblA").textContent = popContents.radio.A;
+    document.getElementById("PopRadioLblB").textContent = popContents.radio.B;
+    
+}
+
+var melt_ponds = {
+    "title":"Melt ponds",
+    "image":"img/melt_pools.jpg",
+    "body":"Melt ponds are pools of water which form on top of sea ice or glaciers. Scientists can" +
+           " use melt pond data as a tool to predict how much ice will melt at the height of summer. \r\n" +
+           "The presence of melt ponds complicates the dynamics of how ice shelves and glaciers melt. \r\n\r\n" +
+           "Sources: \r\n" +
+           "https://earthobservatory.nasa.gov/blogs/earthmatters/2014/08/01/more-melt-ponds/ \r\n" +
+           "https://visibleearth.nasa.gov/view.php?id=84113",
+    "radio":{"A":"Avoid melt pond", "B":"Try to cross"}
+};
+
+// Polar Bears
+var polar_bears = {
+    "title":"Polar bears",
+    "image":"img/Polar_Bear.jpg",
+    "body":"Polar bears live mainly within the Arctic Circle and rely on sea ice to hunt, breed and travel. " +
+           "The timing of sea ice melting in summer and freezing in winter affects polar bear populations because " +
+           "sea ice is so critical to their lifecycle. Satellite observations show that the arctic sea ice is melting " +
+           "sooner and freezing later each year, reducing the total number of ice-covered days each year.\r\n\r\n" +
+           "Sources: \r\n" +
+           "https://www.nasa.gov/feature/goddard/2016/polar-bears-across-the-arctic-face-shorter-sea-ice-season \r\n" +
+           "https://commons.wikimedia.org/wiki/File:Polar_Bear_-_Alaska_(cropped).jpg",
+    "radio":{"A":"Keep away from polar bears, avoid strong-smelling foods", "B":"Approach and offer food"}
+};
+
+// Sea_Ice
+var sea_ice = {
+    "title":"Arctic sea ice retreat",
+    "image":"img/Sea_Ice.png",
+    "body":"Each year in September, after the summer melting period, the extent of Arctic sea ice reaches its annual minimum." +
+           "Data from NASA and the National Snow & Ice Data Center shows how this minimum extent has been decreasing in recent " + 
+           "history contributing to rising sea levels.\r\n\r\n" +
+           "Sources: \r\n" +
+           "https://climate.nasa.gov/vital-signs/arctic-sea-ice/",
+    "radio":{"A":"Plan route considering change in sea ice extent", "B":"Ignore melting of sea ice"}
+};
