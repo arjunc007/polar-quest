@@ -4,6 +4,7 @@
 window.onload = function() {
     "use strict";
     var sources = {
+        resource0: "img/BG.png",
         resource1: "img/32 x 32 platform character_idle_0.png",
         resource2: "img/32 x 32 platform character_idle_1.png",
         resource3: "img/32 x 32 platform character_idle_2.png",
@@ -30,7 +31,7 @@ window.onload = function() {
 
 var loadComplete = false;
 
-var width = 800;
+var width = 900;
 var height = 600;
 
 var c = document.createElement('canvas');
@@ -114,7 +115,17 @@ function Player(x, y) {
     };
     
     this.update = function (dt) {
+        //handle input
+        if (leftKey) {
+            this.velocity.x = -this.speed;
+        } else if (rightKey) {
+            this.velocity.x = this.speed;
+        }
+        if (jumpKey) {
+            this.jump();
+        }
 
+        //select current animation state
         if(this.isJumping) {
             if(this.velocity.x > 0) {
                 this.currentAnim = this.animations["jumpRight"];
@@ -128,42 +139,37 @@ function Player(x, y) {
         } else {
             this.currentAnim = this.animations["idle"];
         }
-
-
-        if (leftKey) {
-            this.velocity.x = -this.speed;
-        } else if (rightKey) {
-            this.velocity.x = this.speed;
-        }
-        if (jumpKey) {
-            this.jump();
-        }
         
+        //animate player
         animTimer += dt;
-        
         if(animTimer > 0.25) {
             this.currentAnim.animate();
             animTimer = 0;
         }
         
+        //Control jumping physics
         if (this.isJumping) {
             this.pos.x += this.velocity.x * dt;
             this.pos.y += this.velocity.y * dt;
             this.velocity.y += 60 * dt;
         } else {
-            if(this.velocity.x > 0) {
-                this.image = idleImages[0];
-            } else if(this.velocity.x < 0) {
-                this.image = idleImages[0];
-            } else {
-                this.image = idleImages[0];   
-            }
             this.pos.x += this.velocity.x * dt;
             this.pos.y += this.velocity.y * dt;
             this.velocity.x *= 0.9;
             this.velocity.y *= 0.9;
         }
-        
+
+        //Start scrolling background
+        if(player.pos.x > c.width * 0.25)
+        {
+            player.pos.x = c.width * 0.25;
+            background.posX -= this.velocity.x * dt;
+        } else if(player.pos.x < 0) {
+            player.pos.x = 0;
+            background.posX -= this.velocity.x * dt;
+        }
+
+        //keep player above ground
         if (this.pos.y > groundHeight) {
             this.velocity.y = 0;
             this.pos.y = groundHeight;
@@ -185,19 +191,41 @@ function Player(x, y) {
 
 
 var player =new Player(20, groundHeight);
+var background = {
+    image: null,
+    posX: 0,
+    show: function() {
+        if(this.image)
+        {
+            ctx.drawImage(this.image, this.posX, 0);
+        }
+    },
+    update: function() {
+        console.log(this.posX);
+        console.log(c.width - this.image.width)
+        if(this.posX < c.width - this.image.width) {
+            this.posX = 0;
+        } else if(this.posX > 0) {
+            this.posX = 0;
+        }
+    }
+};
 var now, dt, last = timestamp();
 
-var currentFood, currentFuel, currentVehicle;
+var currentFood = totalFood, currentFuel = totalFuel, currentVehicle;
 
+//main update loop
 function update(dt) {
     "use strict";
     player.update(dt);
+    background.update(dt);
     if (currentVehicle === "Truck") {
         currentFuel -= 20 * dt;
     }
     currentFood -= 10 * dt;
     
     if (currentFood < 0 || currentFuel < 0) {
+        //alert("You ran out of food!!!");
         console.log("Expedition failed");
     }
 }
@@ -206,9 +234,12 @@ function draw() {
     "use strict";
     ctx.fillStyle = "#2EFEF7";
     ctx.fillRect(0, 0, width, groundHeight);
+    //Background
+    background.show();    
+
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, groundHeight, width, height);
-    
+
     player.show();
 }
 
@@ -283,6 +314,9 @@ function loadImages(sources) {
         images[src] = new Image();
         images[src].onload = function() {
             if(++loadedImages >= numImages) {
+                background.image = images.resource0;
+                background.image.width = (c.height * background.image.width) / background.image.height;
+                background.image.height = c.height;
                 var idleImages = [images.resource1, images.resource2, images.resource3, images.resource4];
                 player.animations["idle"] = new Animation(idleImages);
                 var jumpImages = [images.resource5, images.resource6];
