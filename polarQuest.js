@@ -276,10 +276,10 @@ function Player(x, y) {
         if(player.pos.x > c.width * 0.25)
         {
             player.pos.x = c.width * 0.25;
-            background.posX -= this.velocity.x * dt;
+            background.posX[0] -= this.velocity.x * dt;
         } else if(player.pos.x < 0) {
             player.pos.x = 0;
-            background.posX -= this.velocity.x * dt;
+            background.posX[0] -= this.velocity.x * dt;
         }
 
         //keep player above ground
@@ -305,25 +305,26 @@ function Player(x, y) {
     };
 }
 
-
-
 var player =new Player(20, groundHeight);
 var background = {
     image: null,
-    posX: 0,
+    posX: [0, 0],
     show: function() {
         if(this.image)
         {
-            ctx.drawImage(this.image, this.posX, 0);
+            let scaledWidth = (groundHeight * background.image.width) / background.image.height;
+            ctx.drawImage(this.image, this.posX[0], 0, scaledWidth, groundHeight);
+            ctx.drawImage(this.image, this.posX[1], 0, scaledWidth, groundHeight);
         }
     },
     update: function() {
+        this.posX[1] = this.posX[0] + this.image.width;
         console.log(this.posX);
-        console.log(c.width - this.image.width)
-        if(this.posX < c.width - this.image.width) {
-            this.posX = 0;
-        } else if(this.posX > 0) {
-            this.posX = 0;
+        console.log(this.image);
+        if(this.posX[0] < -this.image.width) {
+            this.posX[0] = this.posX[1] + this.image.width;
+        } else if(this.posX[0] > 0) {
+            this.posX[0] = 0;
         }
     }
 };
@@ -336,7 +337,7 @@ var ans1 = false, ans2 = false, ans3 = false;
 function update(dt) {
     "use strict";
 
-    dist = player.pos.x - background.posX;
+    dist = player.pos.x - background.posX[0];
     //Game popup logic
     if (dist > 700 && !ans3) {
         setPopup(melt_ponds);
@@ -359,14 +360,15 @@ function update(dt) {
     currentFuel -= 10 * dt;
     
     if (currentFood < 0 || currentFuel < 0) {
-        console.log("Expedition failed");
+        //console.log("Expedition failed");
     }
 }
 
 function draw() {
     "use strict";
-    ctx.fillStyle = "#2EFEF7";
-    ctx.fillRect(0, 0, width, groundHeight);
+    //Sky
+    //ctx.fillStyle = "#2EFEF7";
+    //ctx.fillRect(0, 0, width, groundHeight);
     //Background
     background.show();    
     ctx.fillStyle = "#FFFFFF";
@@ -451,8 +453,8 @@ function loadImages(sources) {
         images[src].onload = function() {
             if(++loadedImages >= numImages) {
                 background.image = images.resource0;
-                background.image.width = (c.height * background.image.width) / background.image.height;
-                background.image.height = c.height;
+                background.image.width = (groundHeight * background.image.width) / background.image.height;
+                background.image.height = groundHeight;
                 var idleImages = [images.resource1, images.resource2, images.resource3, images.resource4];
                 player.animations["idle"] = new Animation(idleImages);
                 var jumpImages = [images.resource5, images.resource6];
